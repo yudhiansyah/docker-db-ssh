@@ -1,0 +1,56 @@
+# docker-compose.yml
+services:
+  mysql8:
+    container_name: "mysql-8"
+    build:
+      context: .
+      dockerfile: Dockerfile.mysql
+    restart: always
+    mem_limit: 4G
+    # be sure to run `docker volume rm dev_dev_conf` when changing envs
+    cap_add:
+      - SYS_NICE # CAP_SYS_NICE
+    command: mysqld --port=3306 --disable-log-bin --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootbeermysql
+      - MYSQL_USER=rewt
+      - MYSQL_PASSWORD=simbelekete
+      - MYSQL_TCP_PORT=3306
+      - TZ=Asia/Jakarta
+
+    networks:
+      - db
+    ports:
+      - "3306:3306"
+      - "2222:22"
+    volumes:
+      - mysql8_data:/var/lib/mysql
+      - mysql8_init:/docker-entrypoint-initdb.d
+      - mysql8_conf:/etc/mysql/conf.d
+
+  postgis-15:
+    container_name: "postgis-15"
+    build:
+      context: .
+      dockerfile: Dockerfile.postgis
+    mem_limit: 4G
+    restart: always
+    # be sure to run `docker volume rm dev_dev_conf` when changing envs
+    environment:
+      - POSTGRES_PASSWORD=rootbeerpgsql
+      - TZ=Asia/Jakarta
+    networks:
+      - db
+    ports:
+      - "5432:5432"
+      - "2223:22"
+    volumes:
+      - postgis-15:/var/lib/postgresql/data
+
+volumes:
+  mysql8_init:
+  mysql8_conf:
+  mysql8_data:
+  postgis-15:
+networks:
+  db:

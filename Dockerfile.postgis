@@ -1,0 +1,20 @@
+FROM postgis/postgis:15-3.3
+
+# Install SSH
+RUN apt-get update && apt-get install -y openssh-server
+RUN mkdir /var/run/sshd
+
+# Set root password for SSH access (CHANGE THIS IN PRODUCTION)
+RUN echo 'root:R00tb33r' | chpasswd
+
+# Allow root login
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -i 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' /etc/pam.d/sshd
+
+# Copy entrypoint script
+COPY entrypoint_postgis.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint_postgis.sh
+
+EXPOSE 5432 22
+ENTRYPOINT ["entrypoint_postgis.sh"]
+CMD ["postgres"]
