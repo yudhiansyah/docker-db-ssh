@@ -1,11 +1,13 @@
 FROM postgis/postgis:15-3.3
 
 # Install SSH
-RUN apt-get update && apt-get install -y openssh-server
+# PostGIS image is Debian based, so apt-get is correct.
+# We add 'update' and cleanup to keep it clean.
+RUN apt-get update && apt-get install -y openssh-server && rm -rf /var/lib/apt/lists/*
 RUN mkdir /var/run/sshd
 
 # Set root password for SSH access (CHANGE THIS IN PRODUCTION)
-RUN echo 'root:R00tb33rpgsql' | chpasswd
+RUN echo 'root:root123' | chpasswd
 
 # Allow root login
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
