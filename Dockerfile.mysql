@@ -1,14 +1,20 @@
 FROM mysql:8.0
 
-# Install SSH
-RUN apt-get update && apt-get install -y openssh-server
+# Install SSH (Oracle Linux uses microdnf)
+RUN microdnf update && microdnf install -y openssh-server && microdnf clean all
 RUN mkdir /var/run/sshd
 
+# Generate SSH host keys (required for sshd to start on Oracle Linux/RedHat)
+RUN ssh-keygen -A
+
 # Set root password for SSH access (CHANGE THIS IN PRODUCTION)
-RUN echo 'root:R00tb33r' | chpasswd
+RUN echo 'root:root123' | chpasswd
 
 # Allow root login
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+# PAM fix might not be needed or different on Oracle Linux, but usually harmless. 
+# However, Oracle Linux sshd config might be slightly different.
+# Let's ensure we don't break it. 
 RUN sed -i 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' /etc/pam.d/sshd
 
 # Copy entrypoint script
