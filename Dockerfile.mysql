@@ -8,7 +8,7 @@ RUN mkdir /var/run/sshd
 RUN ssh-keygen -A
 
 # Set root password for SSH access (CHANGE THIS IN PRODUCTION)
-RUN echo 'root:root123' | chpasswd
+RUN echo 'root:rootbeer' | chpasswd
 
 # Allow root login
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
